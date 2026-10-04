@@ -19,6 +19,8 @@
   function startInvestigation(operative) {
     pauseStart = 0;
     autoPaused = false;
+    state.manualPaused = false;
+    state.pausedAt = 0;
     state.operative = operative;
     state.startedAt = Date.now();
     state.maxUnlocked = Math.max(state.maxUnlocked, 1);
@@ -38,6 +40,10 @@
      label, and the frozen display always agree with each other. */
   var pauseStart = 0;   // timestamp the current pause interval began (any cause)
   var autoPaused = false;
+  // Restore an in-flight manual pause across refresh: the pause origin is
+  // persisted (state.pausedAt) so the display stays frozen instead of
+  // silently resuming, and the pre-refresh pause gap is not lost.
+  if (state.manualPaused && state.startedAt) pauseStart = state.pausedAt || Date.now();
   function pausedTotalMs() {
     var acc = state.pausedMs || 0;
     if (pauseStart) acc += Date.now() - pauseStart;
@@ -67,8 +73,10 @@
     state.manualPaused = on;
     if (on) {
       if (!pauseStart) pauseStart = Date.now();
-    } else if (pauseStart && !autoPaused) {
-      bankPause();
+      state.pausedAt = pauseStart;
+    } else {
+      if (pauseStart && !autoPaused) bankPause();
+      state.pausedAt = 0;
     }
     persist();
     return isPaused();

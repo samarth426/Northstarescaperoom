@@ -103,7 +103,7 @@
     $("hudScore").textContent = String(E.liveScore(activeLevelId()));
     $("hudProgress").textContent = E.completedCount() + "/" + CFG.TOTAL_LEVELS;
     $("hudBar").style.width = Math.round((E.completedCount() / CFG.TOTAL_LEVELS) * 100) + "%";
-    $("evCount").textContent = String(s.evidence.length);
+    $("evCount").textContent = String(E.evidenceList().length);
     tickClock();
   }
   function tickClock() {
@@ -431,8 +431,8 @@
         "<p class='muted small'>" + (d ? E.esc(d.toLocaleString()) : "undated") +
         ' · <span class="tag">' + E.esc(noteLevelName(n.level)) + "</span>" +
         (n.source ? ' · <span class="muted">' + E.esc(n.source) + "</span>" : "") + "</p>" +
-        '<div class="answer-row"><button type="button" class="btn btn-sm" data-editnote="' + n.id + '">Edit</button>' +
-        '<button type="button" class="btn btn-sm" data-delnote="' + n.id + '">Delete</button></div></article>';
+        '<div class="answer-row"><button type="button" class="btn btn-sm" data-editnote="' + E.esc(n.id) + '">Edit</button>' +
+        '<button type="button" class="btn btn-sm" data-delnote="' + E.esc(n.id) + '">Delete</button></div></article>';
     }).join("");
     $("view").innerHTML = '<h2>Investigation notes</h2><p class="muted">Persisted locally. Keep codenames, IPs, and hypotheses here — the finale is open-Locker.</p>' +
       '<form class="card" id="noteForm"><label class="fld" for="noteText"><span>New note</span><textarea id="noteText" rows="3" maxlength="2000" placeholder="e.g. C2 185.220.101.47 appears in packets 7, 9, 11…"></textarea></label>' +
@@ -629,7 +629,7 @@
       '<header class="lvl-head"><div><p class="kicker">Level ' + L.id + " of " + CFG.TOTAL_LEVELS + "</p><h2>" + E.esc(L.title) + "</h2>" +
       '<p><span class="diff ' + difficultyClass(L.difficulty) + '">' + E.esc(L.difficulty) + "</span> " + statusBadge(done ? "completed" : E.levelStatus(id)) +
       ' <span class="muted small">' + E.esc(L.time) + ' · attempts: <span id="lvlAtt">' + wrong + '</span> · <span id="lvlProj">projected score: ' + E.scoreForLevel(id) + "</span></span></p></div>" +
-      (id === 11 ? '<p class="tag">FINALE — requires Evidence EV-03 → EV-10</p>' : "") + "</header>" +
+      (id === CFG.TOTAL_LEVELS ? '<p class="tag">FINALE — requires Evidence EV-03 → EV-10</p>' : "") + "</header>" +
       (issues.length ? '<div class="alert err" role="alert"><strong>Level configuration problem (no progress lost).</strong><ul>' +
         issues.map(function (i) { return "<li>" + E.esc(i) + "</li>"; }).join("") + "</ul></div>" : "") +
       '<section class="card"><h3>Story</h3>' + L.story.map(function (p) { return "<p>" + E.esc(p) + "</p>"; }).join("") +
@@ -724,7 +724,7 @@
       "<h4>What you learned</h4><p>" + E.esc(L.explanation.learned) + "</p>" +
       '<p class="ev-unlock">▣ Evidence banked: <strong>' + ev.id + " — " + E.esc(ev.name) + "</strong><br /><span class='mono small'>" + E.esc(ev.value) + "</span></p>" +
       '<div class="hero-actions">' +
-      (L.id < 11 ? '<button type="button" class="btn btn-primary" id="btnNext">Advance to Level ' + (L.id + 1) + "</button>" : '<button type="button" class="btn btn-primary" id="btnFinal">Open Final Incident Report</button>') +
+      (L.id < CFG.TOTAL_LEVELS ? '<button type="button" class="btn btn-primary" id="btnNext">Advance to Level ' + (L.id + 1) + "</button>" : '<button type="button" class="btn btn-primary" id="btnFinal">Open Final Incident Report</button>') +
       '<button type="button" class="btn" id="btnLocker">Review Evidence Locker</button></div></section>';
     smoothIntoView(box);
     var nx = $("btnNext");
@@ -739,7 +739,7 @@
   /* ---------- final report ---------- */
   function renderReport() {
     var s = E.getState();
-    if (!s.finished) { toast("Solve Level 11 to unlock the report."); location.hash = "#/level/" + nextLevelId(); return; }
+    if (!s.finished) { toast("Solve Level " + CFG.TOTAL_LEVELS + " to unlock the report."); location.hash = "#/level/" + nextLevelId(); return; }
     setSide("investigation");
     var r = E.rating();
     var rows = D.LEVELS.map(function (L) {
@@ -945,6 +945,15 @@
       b.addEventListener("click", function () { goTab(b.getAttribute("data-tab")); });
     });
     $("btnResetTop").addEventListener("click", askReset);
+    // Skip link must focus the visible main without touching location.hash:
+    // a raw "#view" hash fails route matching and would bounce the player
+    // out of the current level to the dashboard.
+    var sl = document.querySelector(".skip-link");
+    if (sl) sl.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      var target = (!$("layout").hidden && $("view")) || $("viewLanding");
+      if (target) target.focus({ preventScroll: false });
+    });
     var pb = $("hudPauseBtn");
     if (pb) pb.addEventListener("click", togglePause);
     window.addEventListener("hashchange", route);

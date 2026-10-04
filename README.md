@@ -6,7 +6,7 @@ A complete, fully playable **11-level educational cybersecurity escape room**, p
 
 The player joins the night-shift investigation team and works a single breach from first intercept to final verdict: decode the message, rank the risky identity, triage the phish, hunt C2 traffic in a simulated capture, extract a hidden image message, annotate a pretexting attempt, dissect a prompt injection, rebuild the forensic timeline, attribute via responsible OSINT, geolocate the staging site, and close the case in a static malware-analysis lab that reuses evidence from earlier levels.
 
-> The repository root contains unrelated existing projects (a volunteer site, etc.). This game lives entirely in `northstar-escape/` and does not touch them.
+> **Deployment:** this game is served by GitHub Pages from the repository root (`index.html`, `css/`, `js/` all at top level) at <https://samarth426.github.io/Northstarescaperoom/>. Every path is relative, so the same files also work from any subfolder or a plain local server.
 
 ## EDUCATIONAL OBJECTIVES
 
@@ -160,3 +160,10 @@ python -m http.server 8080  # then http://localhost:8080/
 ```
 
 No `npm install`, no build, no backend.
+
+## DEPLOYMENT (GITHUB PAGES)
+
+- **Live site:** <https://samarth426.github.io/Northstarescaperoom/> (GitHub Pages, branch `main`, folder `/`).
+- The repository stores `index.html`, `css/`, `js/`, and `README.md` at the **repo root** so the project-page URL serves the game directly. A `.nojekyll` file disables Jekyll processing.
+- All asset references are relative (`css/styles.css`, `js/*.js`) and there are no external requests, so the site works identically under any base path (project page subpath included).
+- To publish changes: copy the contents of `northstar-escape/` to the repository root, commit, and push to `main`; Pages rebuilds automatically.

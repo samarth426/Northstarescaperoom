@@ -52,6 +52,7 @@
       elapsedBefore: 0,      // reserved for pause support
       pausedMs: 0,           // accumulated pause (display timer only)
       manualPaused: false,  // player-toggled pause; persisted so refresh keeps the exact state
+      pausedAt: 0,           // epoch ms when the manual pause began (restored on refresh)
       maxUnlocked: 1,        // highest level number available
       completed: {},         // levelId -> { score, attempts, hintsUsed:[bool,bool,bool], timeSeconds, completedAt }
       attempts: {},          // levelId -> wrong attempt count (includes current in-progress level)
@@ -96,6 +97,7 @@
     take("elapsedBefore", isNum);
     take("pausedMs", isNum);
     take("manualPaused", isBool);
+    take("pausedAt", isNum);
     take("finishedAt", isNum);
     if (Object.prototype.hasOwnProperty.call(parsed, "maxUnlocked")) {
       var m = parseInt(parsed.maxUnlocked, 10);
@@ -106,6 +108,7 @@
         var clean = {};
         Object.keys(parsed.completed).forEach(function (k) {
           var c = parsed.completed[k];
+          if (!/^\d+$/.test(k) || +k < 1 || +k > TOTAL) { repaired = true; return; }
           if (c && typeof c === "object" && isFinite(+c.score)) {
             clean[k] = {
               score: Math.max(0, +c.score || 0),
@@ -119,14 +122,47 @@
         fresh.completed = clean;
       } else repaired = true;
     }
-    ["attempts", "hints", "levelOpenedAt"].forEach(function (key) {
-      if (Object.prototype.hasOwnProperty.call(parsed, key)) {
-        if (isIdMap(parsed[key])) fresh[key] = parsed[key]; else repaired = true;
-      }
-    });
+    // Per-level maps: validate keys (1..TOTAL) AND values, not just key shape.
+    // Bad keys/values are dropped individually — one corrupt entry never
+    // discards the whole map. A corrupt value here would otherwise crash
+    // renderReport/recordWrongAttempt.
+    function eachIdMap(v, conv) {
+      if (!v || typeof v !== "object" || Array.isArray(v)) { repaired = true; return null; }
+      var out = {};
+      Object.keys(v).forEach(function (k) {
+        if (!/^\d+$/.test(k) || +k < 1 || +k > TOTAL) { repaired = true; return; }
+        var c = conv(v[k]);
+        if (c !== null) out[k] = c; else repaired = true;
+      });
+      return out;
+    }
+    if (Object.prototype.hasOwnProperty.call(parsed, "attempts")) {
+      var att = eachIdMap(parsed.attempts, function (x) {
+        var n = parseInt(x, 10);
+        return (isFinite(n) && n >= 0) ? n : null;
+      });
+      if (att) fresh.attempts = att;
+    }
+    if (Object.prototype.hasOwnProperty.call(parsed, "hints")) {
+      var hts = eachIdMap(parsed.hints, function (x) { return isBoolArray3(x) ? x : null; });
+      if (hts) fresh.hints = hts;
+    }
+    if (Object.prototype.hasOwnProperty.call(parsed, "levelOpenedAt")) {
+      var op = eachIdMap(parsed.levelOpenedAt, function (x) {
+        var t = +x;
+        return (isFinite(t) && t >= 0) ? t : null;
+      });
+      if (op) fresh.levelOpenedAt = op;
+    }
     if (Object.prototype.hasOwnProperty.call(parsed, "evidence")) {
-      if (Array.isArray(parsed.evidence) && parsed.evidence.every(function (x) { return typeof x === "string"; })) fresh.evidence = parsed.evidence;
-      else repaired = true;
+      if (Array.isArray(parsed.evidence)) {
+        var evs = [], seenEv = {};
+        parsed.evidence.forEach(function (x) {
+          if (typeof x === "string" && !seenEv[x]) { seenEv[x] = 1; evs.push(x); }
+          else repaired = true;
+        });
+        fresh.evidence = evs;
+      } else repaired = true;
     }
     if (Object.prototype.hasOwnProperty.call(parsed, "notes")) {
       if (Array.isArray(parsed.notes)) {
@@ -139,7 +175,7 @@
             id: String(n.id).slice(0, 40),
             text: String(n.text).slice(0, 2000),
             createdAt: +n.createdAt || 0,
-            level: parseInt(n.level, 10) || 0,
+            level: Math.min(TOTAL, Math.max(0, parseInt(n.level, 10) || 0)),
             source: typeof n.source === "string" ? n.source.slice(0, 60) : ""
           };
         });

@@ -242,7 +242,7 @@
       explanation: {
         found: "Pretexting by 'D. Kessler': invented incident, director-level authority claim, one-hour countdown, credential/MFA solicitation, plus wire-approval harvesting.",
         why: "No malicious link or attachment was needed — the invented scenario did the work. The tells stack: unverifiable identity, urgency blocking verification ('don't call x4100'), requests IT Security would never make (passwords, MFA codes), and scope creep into wire approvals.",
-        learned: "Defense: verify identity through a known-good channel (call x4100 yourself),Treat urgency as a red flag, never share passwords or MFA codes, and report the conversation with timestamps. AI polish doesn't change the playbook — verification defeats it."
+        learned: "Defense: verify identity through a known-good channel (call x4100 yourself), Treat urgency as a red flag, never share passwords or MFA codes, and report the conversation with timestamps. AI polish doesn't change the playbook — verification defeats it."
       },
       reward: "EV-06"
     },
