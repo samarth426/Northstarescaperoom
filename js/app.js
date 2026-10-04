@@ -97,10 +97,20 @@
     var m = (location.hash || "").match(/^#\/level\/(\d+)$/);
     return m ? parseInt(m[1], 10) : 0;
   }
+  // The level the live score projects: the open one while it is unsolved,
+  // otherwise the current mission (next unsolved) — including when no level
+  // is open at all (dashboard, briefing). Keeps the header number identical
+  // across navigation, so a penalty never vanishes just because the player
+  // left the level, and reviewing a solved level never drops the score.
+  function hudLevelId() {
+    var a = activeLevelId();
+    if (a && !E.getState().completed[a]) return a;
+    return nextLevelId();
+  }
   function updateHUD() {
     var s = E.getState();
     $("hudOperative").textContent = s.operative || "—";
-    $("hudScore").textContent = String(E.liveScore(activeLevelId()));
+    $("hudScore").textContent = String(E.liveScore(hudLevelId()));
     $("hudProgress").textContent = E.completedCount() + "/" + CFG.TOTAL_LEVELS;
     $("hudBar").style.width = Math.round((E.completedCount() / CFG.TOTAL_LEVELS) * 100) + "%";
     $("evCount").textContent = String(E.evidenceList().length);
@@ -293,7 +303,7 @@
       (rows.length ? rows.join("") : "<div><dt>Penalties so far</dt><dd>none — clean run</dd></div>") +
       "<div><dt>Wrong attempts total</dt><dd>−" + totW + " pts</dd></div>" +
       "<div><dt>Hints total</dt><dd>−" + totH + " pts</dd></div>" +
-      "<div class='total'><dt>Live score</dt><dd>" + E.liveScore(0) + " pts</dd></div>" +
+      "<div class='total'><dt>Live score</dt><dd>" + E.liveScore(hudLevelId()) + " pts</dd></div>" +
       "</dl></div>";
     return html;
   }
@@ -313,7 +323,7 @@
       '<div class="hero-actions"><button type="button" class="btn btn-primary" id="btnStart">Open Level ' + L.id + '</button>' +
       '<button type="button" class="btn" id="btnMap">Mission map</button></div></section>' +
       '<section class="card"><h3>Investigation status</h3><div class="stat-grid">' +
-      "<div><strong>" + E.liveScore(0) + "</strong><span>score</span></div>" +
+      "<div><strong>" + E.liveScore(hudLevelId()) + "</strong><span>score</span></div>" +
       "<div><strong>" + done + "/" + CFG.TOTAL_LEVELS + "</strong><span>levels</span></div>" +
       "<div><strong>" + E.fmtTime(E.elapsedSeconds()) + "</strong><span>elapsed</span></div>" +
       "<div><strong>" + E.rating().label + "</strong><span>rating (" + E.rating().pct + "%)</span></div></div>" +
