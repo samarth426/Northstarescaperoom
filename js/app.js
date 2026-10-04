@@ -596,14 +596,23 @@
     var wrong = s.attempts[id] || 0;
     // Hint card renders from live state so revealing a hint never touches
     // the workspace below (selections, timeline drafts, typed answers stay).
+    // Post-solve reveals are session-local: the debrief says "free review",
+    // so they display the text without mutating score state or receipts.
+    var revealed = {};
+    function hintSolved() { return !!E.getState().completed[id]; }
     function hintCardHTML() {
+      var solved = hintSolved();
       var hh = E.getState().hints[id] || [false, false, false];
-      return "<h3>Hints " + (done ? "(solved — free review)" : "(penalties apply)") + '</h3><div class="hint-list">' +
+      return "<h3>Hints " + (solved ? "(solved — free review)" : "(penalties apply)") + '</h3><div class="hint-list">' +
         L.hints.map(function (text, i) {
           var pen = CFG.scoring.hintPenalties[i];
-          return '<div class="hint"><button type="button" class="btn btn-sm" data-hint="' + i + '"' + (hh[i] ? " disabled" : "") + ">" +
-            (hh[i] ? "Hint " + (i + 1) + " used (−" + pen + ")" : "Reveal Hint " + (i + 1) + " (−" + pen + ")") + "</button>" +
-            (hh[i] ? "<p>" + E.esc(text) + "</p>" : "") + "</div>";
+          var shown = hh[i] || (solved && revealed[i]);
+          var label = hh[i]
+            ? "Hint " + (i + 1) + " used (−" + pen + ")"
+            : "Reveal Hint " + (i + 1) + (solved ? " (free)" : " (−" + pen + ")");
+          return '<div class="hint"><button type="button" class="btn btn-sm" data-hint="' + i + '"' + (shown ? " disabled" : "") + ">" +
+            label + "</button>" +
+            (shown ? "<p>" + E.esc(text) + "</p>" : "") + "</div>";
         }).join("") + "</div>";
     }
     function refreshHintCard() {
@@ -618,7 +627,9 @@
       root.querySelectorAll("[data-hint]").forEach(function (b) {
         b.addEventListener("click", function () {
           var i = parseInt(b.getAttribute("data-hint"), 10);
-          if (!done) {
+          if (hintSolved()) {
+            revealed[i] = true;
+          } else {
             var hOldProj = E.scoreForLevel(id), hOldLive = E.liveScore(id);
             if (E.useHint(id, i)) {
               updateHUD();
@@ -637,7 +648,7 @@
       '<nav class="crumbs" aria-label="Breadcrumb"><button type="button" class="linkbtn" id="crumbMap">← Mission map</button></nav>' +
       presentationNav() +
       '<header class="lvl-head"><div><p class="kicker">Level ' + L.id + " of " + CFG.TOTAL_LEVELS + "</p><h2>" + E.esc(L.title) + "</h2>" +
-      '<p><span class="diff ' + difficultyClass(L.difficulty) + '">' + E.esc(L.difficulty) + "</span> " + statusBadge(done ? "completed" : E.levelStatus(id)) +
+      '<p><span class="diff ' + difficultyClass(L.difficulty) + '">' + E.esc(L.difficulty) + '</span> <span id="lvlStatus">' + statusBadge(done ? "completed" : E.levelStatus(id)) + "</span>" +
       ' <span class="muted small">' + E.esc(L.time) + ' · attempts: <span id="lvlAtt">' + wrong + '</span> · <span id="lvlProj">projected score: ' + E.scoreForLevel(id) + "</span></span></p></div>" +
       (id === CFG.TOTAL_LEVELS ? '<p class="tag">FINALE — requires Evidence EV-03 → EV-10</p>' : "") + "</header>" +
       (issues.length ? '<div class="alert err" role="alert"><strong>Level configuration problem (no progress lost).</strong><ul>' +
@@ -707,6 +718,11 @@
         var rec = E.completeLevel(id, L.reward);
         updateHUD();
         showSolved(L, rec, false);
+        // Re-render header bits captured before the solve: badge flips to
+        // COMPLETED and the hint card switches to "solved — free review".
+        var st = $("lvlStatus");
+        if (st) st.innerHTML = statusBadge("completed");
+        refreshHintCard();
       }
     };
     try {
