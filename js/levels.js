@@ -38,8 +38,8 @@
       '<p class="muted small">Family candidates: Caesar shift · Atbash · Simple substitution. Word breaks preserved.</p>' +
       '<h4>Letter frequency</h4><div class="freq" role="img" aria-label="Letter frequency chart of the ciphertext">' + bars + '</div></section>' +
       '<section class="card" aria-label="Decoder"><h3>Interactive decoder</h3>' +
-      '<label class="fld"><span>Caesar shift <strong id="l1shiftv">7</strong></span>' +
-      '<input type="range" id="l1shift" min="1" max="25" value="7" aria-label="Caesar shift value" /></label>' +
+      '<label class="fld"><span>Caesar shift <strong id="l1shiftv">1</strong></span>' +
+      '<input type="range" id="l1shift" min="1" max="25" value="1" aria-label="Caesar shift value" /></label>' +
       '<p class="mono decode-out" id="l1out" aria-live="polite"></p>' +
       '<p class="muted small">Short-word anchor: the two-letter word <strong>HA</strong> is likely AT, IT, IS, OF, or OR. Only a few shifts satisfy that — test them.</p>' +
       '<div class="answer-row"><label class="fld grow" for="l1ans"><span>Decoded plaintext</span>' +
