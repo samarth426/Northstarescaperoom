@@ -160,8 +160,8 @@
     var started = E.isStarted();
     $("viewLanding").innerHTML =
       '<section class="hero"><div class="hero-inner">' +
-      '<p class="kicker">NJCCIC-style training exercise · 100% fictional</p>' +
-      "<h1>Northstar Systems<br /><span>Incident Escape Room</span></h1>" +
+      '<p class="kicker">TEAM 2: Samarth, Rafan, Chayan, Roshini, Preston, Ishaan</p>' +
+      "<h1>Northstar Systems<br /><span>Cybersecurity Escape Room</span></h1>" +
       '<p class="lede">One connected breach. Eleven levels. You are the new analyst on the night shift: decode the intercept, trace the phish, hunt the beacons, and close the case with a full incident report.</p>' +
       '<div class="hero-meta"><span>◎ 11 levels: crypto → identity → phishing → network → stego → social engineering → prompt injection → forensics → OSINT → GEOINT → malware lab</span>' +
       "<span>▣ Evidence Locker carries clues forward — the finale requires them</span>" +
