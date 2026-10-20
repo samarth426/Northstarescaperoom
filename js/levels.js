@@ -351,7 +351,7 @@
       '<section class="card"><h3>Employee context (public, fictional)</h3>' +
       '<div class="kv"><span>Recipient</span><span>L. Tran, Finance — can approve small wires</span></div>' +
       '<div class="kv"><span>Real helpdesk</span><span>x4100, it@northstar.systems — never asks for passwords/MFA codes</span></div>' +
-      '<div class="kv"><span>Writing style</span><span>Unusually polished for a rushed night-shift note — consistent with AI-assisted drafting</span></div>' +
+      '<div class="kv"><span>Writing style</span><span>Unusually polished for a rushed night-shift note</span></div>' +
       '<h3>Classify the primary technique</h3><div class="check-grid">' + tech + '</div>' +
       '<div class="answer-row"><button type="button" class="btn btn-primary" id="l6go">Submit analysis</button></div></section></div>';
 

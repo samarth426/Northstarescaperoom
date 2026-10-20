@@ -217,7 +217,7 @@
       id: 6, title: "Friendly Voices", difficulty: "Medium", time: "~15 min",
       tagline: "A helpful caller is not who they claim to be. Prove it.",
       story: [
-        "L. Tran forwarded a chat with someone claiming to be 'D. Kessler from IT Security' who needed her login 'to stop the payroll lock.' The writing feels polished — Okafor suspects AI-assisted persuasion.",
+        "L. Tran forwarded a chat with someone claiming to be 'D. Kessler from IT Security' who needed her login 'to stop the payroll lock.' The writing feels polished.",
         "This level is strictly defensive: you will annotate manipulation, never practice it. \"Click what feels wrong,\" Okafor says, \"then name the playbook.\""
       ],
       objectives: ["Read the full conversation and employee context", "Click the three manipulative segments", "Classify the primary technique"],
@@ -242,7 +242,7 @@
       explanation: {
         found: "Pretexting by 'D. Kessler': invented incident, director-level authority claim, one-hour countdown, credential/MFA solicitation, plus wire-approval harvesting.",
         why: "No malicious link or attachment was needed — the invented scenario did the work. The tells stack: unverifiable identity, urgency blocking verification ('don't call x4100'), requests IT Security would never make (passwords, MFA codes), and scope creep into wire approvals.",
-        learned: "Defense: verify identity through a known-good channel (call x4100 yourself), Treat urgency as a red flag, never share passwords or MFA codes, and report the conversation with timestamps. AI polish doesn't change the playbook — verification defeats it."
+        learned: "Defense: verify identity through a known-good channel (call x4100 yourself), Treat urgency as a red flag, never share passwords or MFA codes, and report the conversation with timestamps."
       },
       reward: "EV-06"
     },
@@ -533,7 +533,6 @@
     ["Network traffic", "Packets moving between hosts. Analysts baseline the normal, then hunt size, timing, and destination anomalies. (Level 4)"],
     ["DNS", "The phone book of the network: names to addresses. Attackers abuse it for tunneling because it is rarely blocked. (Levels 4, 8, 11)"],
     ["Steganography", "Hiding a message inside an ordinary file, such as image pixels or metadata. (Level 5)"],
-    ["Prompt injection", "Smuggling instructions into data an AI assistant reads, so it obeys attacker text as if it were policy. (Level 7)"],
     ["Digital forensics", "Reconstructing events from logs and artifacts — correlating sources, preserving hashes and timelines. (Level 8)"],
     ["OSINT", "Open-source intelligence: learning from legitimately published material only — no contact, no intrusion. (Level 9)"],
     ["GEOINT", "Geospatial intelligence: pinning a location by corroborating imagery, terrain, and metadata. (Level 10)"],
